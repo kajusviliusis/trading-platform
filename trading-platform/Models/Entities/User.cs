@@ -8,7 +8,7 @@
         public string PasswordHash { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public Wallet Wallet { get; set; }
+        public Wallet? Wallet { get; set; }
         public ICollection<Order> Orders { get; set; } = new List<Order>();
     }
 }
