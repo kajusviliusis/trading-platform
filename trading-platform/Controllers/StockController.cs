@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 using trading_platform.Data;
 using trading_platform.Models.Entities;
 
@@ -9,11 +10,12 @@ namespace trading_platform.Controllers
     public class StockController : ControllerBase
     {
         private readonly TradingDbContext _context;
-        public StockController(TradingDbContext context)
+        private readonly IConfiguration _config;
+        public StockController(TradingDbContext context, IConfiguration config)
         {
             _context = context;
+            _config = config;
         }
-
         [HttpGet]
         public IActionResult GetStocks()
         {
@@ -64,6 +66,29 @@ namespace trading_platform.Controllers
             _context.Stocks.Remove(stock);
             _context.SaveChanges();
             return NoContent();
+        }
+        [HttpGet("live/{symbol}")]
+        public async Task<IActionResult> GetLivePrice(string symbol)
+        {
+            try
+            {
+                using var client = new HttpClient();
+                var apiKey = _config["Finnhub:ApiKey"];
+                client.DefaultRequestHeaders.Add("X-Finnhub-Token", apiKey);
+
+                var url = $"https://finnhub.io/api/v1/quote?symbol={symbol}";
+                var response = await client.GetStringAsync(url);
+
+                using var doc = JsonDocument.Parse(response);
+                var root = doc.RootElement;
+                var price = root.GetProperty("c").GetDecimal();
+
+                return Ok(new { Symbol = symbol, Price = price });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
     }
 }
