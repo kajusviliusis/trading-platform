@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using trading_platform.Data;
+using trading_platform.Dtos;
 using trading_platform.Models.Entities;
 
 namespace trading_platform.Controllers
@@ -81,9 +83,18 @@ namespace trading_platform.Controllers
 
                 using var doc = JsonDocument.Parse(response);
                 var root = doc.RootElement;
-                var price = root.GetProperty("c").GetDecimal();
 
-                return Ok(new { Symbol = symbol, Price = price });
+                var dto = new StockQuoteDto
+                {
+                    Symbol = symbol,
+                    CurrentPrice = root.GetProperty("c").GetDecimal(),
+                    Open = root.GetProperty("o").GetDecimal(),
+                    High = root.GetProperty("h").GetDecimal(),
+                    Low = root.GetProperty("l").GetDecimal(),
+                    PreviousClose = root.GetProperty("pc").GetDecimal()
+                };
+
+                return Ok(dto);
             }
             catch (Exception ex)
             {
