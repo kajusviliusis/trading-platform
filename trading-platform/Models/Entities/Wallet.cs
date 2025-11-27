@@ -7,6 +7,6 @@
         public string Currency { get; set; } = "USD";
 
         public int UserId { get; set; }
-        public User User {  get; set; }
+        public User? User {  get; set; }
     }
 }
