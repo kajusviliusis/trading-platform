@@ -21,50 +21,86 @@ namespace trading_platform.Controllers
         [HttpGet]
         public IActionResult GetStocks()
         {
-            var stocks = _context.Stocks.ToList();
+            var stocks = _context.Stocks
+                .Select(s => new StockResponseDto {
+                    Id = s.Id,
+                    Name = s.Name,
+                    Symbol = s.Symbol,
+                    Price = s.Price,
+                    UpdatedAt = s.UpdatedAt
+
+                    })
+                .ToList();
             return Ok(stocks);
         }
         [HttpGet("{id}")]
         public IActionResult GetStock(int id)
         {
             var stock = _context.Stocks.Find(id);
-            if (stock == null)
+            if (stock == null) return NotFound();
+
+            var response = new StockResponseDto
             {
-                return NotFound();
-            }
-            return Ok(stock);
+                Id = stock.Id,
+                Name = stock.Name,
+                Symbol = stock.Symbol,
+                Price = stock.Price,
+                UpdatedAt = stock.UpdatedAt
+            };
+
+            return Ok(response);
         }
         [HttpPost]
-        public IActionResult CreateStock(Stock stock)
+        public IActionResult CreateStock(CreateStockDto dto)
         {
+            var stock = new Stock
+            {
+                Symbol = dto.Symbol,
+                Price = dto.Price,
+                Name = dto.Name,
+                UpdatedAt = DateTime.UtcNow
+            };
             _context.Stocks.Add(stock);
             _context.SaveChanges();
-            return CreatedAtAction(nameof(GetStock), new { id = stock.Id}, stock );
+
+            var response = new StockResponseDto
+            {
+                Id = stock.Id,
+                Symbol = stock.Symbol,
+                Name = stock.Name,
+                Price = stock.Price,
+                UpdatedAt = stock.UpdatedAt
+            };
+
+            return CreatedAtAction(nameof(GetStock), new { id = stock.Id}, response);
         }
         [HttpPut("{id}")]
-        public IActionResult UpdateStock(int id, Stock updated)
+        public IActionResult UpdateStock(int id, UpdateStockDto dto)
         {
             var stock = _context.Stocks.Find(id);
-            if (stock == null)
-            {
-                return NotFound();
-            }
-            stock.Symbol = updated.Symbol;
-            stock.Name = updated.Name;
-            stock.Price = updated.Price;
+            if (stock == null) return NotFound();
+            stock.Name = dto.Name;
+            stock.Price = dto.Price;
             stock.UpdatedAt = DateTime.UtcNow;
 
             _context.SaveChanges();
-            return Ok(stock);
+
+            var response = new StockResponseDto
+            {
+                Id = stock.Id,
+                Symbol = stock.Symbol,
+                Name = stock.Name,
+                Price = stock.Price,
+                UpdatedAt = stock.UpdatedAt
+            };
+
+            return Ok(response);
         }
         [HttpDelete("{id}")]
         public IActionResult DeleteStock(int id)
         {
             var stock = _context.Stocks.Find(id);
-            if (stock == null)
-            {
-                return NotFound();
-            }
+            if (stock == null) return NotFound();
             _context.Stocks.Remove(stock);
             _context.SaveChanges();
             return NoContent();
