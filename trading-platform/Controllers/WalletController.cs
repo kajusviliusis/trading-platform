@@ -17,7 +17,8 @@ namespace trading_platform.Controllers
         [HttpGet]
         public IActionResult GetWallets()
         {
-            var wallets = _context.Wallets(w => new WalletResponseDto
+            var wallets = _context.Wallets
+                .Select(w => new WalletResponseDto
             {
                 Id = w.Id,
                 Balance = w.Balance,
