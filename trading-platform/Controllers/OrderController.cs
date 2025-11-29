@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using trading_platform.Data;
+using trading_platform.Dtos;
 using trading_platform.Models.Entities;
 
 namespace trading_platform.Controllers
@@ -18,7 +19,18 @@ namespace trading_platform.Controllers
         [HttpGet]
         public IActionResult GetOrders()
         {
-            var orders = _context.Orders.ToList();
+            var orders = _context.Orders
+                .Select(o => new OrderResponseDto
+                {
+                    Id = o.Id,
+                    Quantity = o.Quantity,
+                    Type = o.Type,
+                    PriceAtExecution = o.PriceAtExecution,
+                    Timestamp = o.Timestamp,
+                    UserId = o.UserId,
+                    StockId = o.StockId
+                })
+                .ToList();
             return Ok(orders);
         }
 
@@ -26,49 +38,58 @@ namespace trading_platform.Controllers
         public IActionResult GetOrder(int id)
         {
             var order = _context.Orders.Find(id);
-            if (order == null)
+            if (order == null) return NotFound();
+            var response = new OrderResponseDto
             {
-                return NotFound();
-            }
-            return Ok(order);
+                Id = order.Id,
+                Quantity = order.Quantity,
+                Type = order.Type,
+                PriceAtExecution = order.PriceAtExecution,
+                Timestamp = order.Timestamp,
+                UserId = order.UserId,
+                StockId = order.StockId
+
+            };
+            return Ok(response);
         }
 
         [HttpPost]
-        public IActionResult CreateOrder(Order order)
+        public IActionResult CreateOrder(CreateOrderDto dto)
         {
+            var stock = _context.Stocks.Find(dto.StockId);
+            if (stock == null) return BadRequest("Invalid StockId");
+
+            var order = new Order
+            {
+                UserId = dto.UserId,
+                StockId = dto.StockId,
+                Quantity = dto.Quantity,
+                Type = dto.Type,
+                PriceAtExecution = stock.Price,
+                Timestamp = DateTime.UtcNow
+            };
             _context.Orders.Add(order);
             _context.SaveChanges();
-            return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);
-        }
 
-        [HttpPut("{id}")]
-        public IActionResult UpdateOrder(int id, Order updated)
-        {
-            var order = _context.Orders.Find(id);
-            if (order == null)
+            var response = new OrderResponseDto
             {
-                return NotFound();
-            }
+                Id = order.Id,
+                Quantity = order.Quantity,
+                Type = order.Type,
+                PriceAtExecution = order.PriceAtExecution,
+                Timestamp = order.Timestamp,
+                UserId = order.UserId,
+                StockId = order.StockId
+            };
 
-            order.Quantity = updated.Quantity;
-            order.Type = updated.Type;
-            order.PriceAtExcecution = updated.PriceAtExcecution;
-            order.Timestamp = updated.Timestamp;
-            order.UserId = updated.UserId;
-            order.StockId = updated.StockId;
-
-            _context.SaveChanges();
-            return Ok(order);
+            return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, response);
         }
 
         [HttpDelete("{id}")]
         public IActionResult DeleteOrder(int id)
         {
             var order = _context.Orders.Find(id);
-            if (order == null)
-            {
-                return NotFound();
-            }
+            if (order == null) return NotFound();
 
             _context.Orders.Remove(order);
             _context.SaveChanges();

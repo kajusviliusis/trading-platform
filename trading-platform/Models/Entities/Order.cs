@@ -5,7 +5,7 @@
         public int Id { get; set; }
         public int Quantity { get; set; }
         public string Type { get; set; } = "Buy";
-        public decimal PriceAtExcecution { get; set; }
+        public decimal PriceAtExecution { get; set; }
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 
         public int UserId { get; set; }
