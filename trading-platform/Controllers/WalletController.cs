@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using trading_platform.Data;
+using trading_platform.Dtos;
 using trading_platform.Models.Entities;
 
 namespace trading_platform.Controllers
@@ -16,50 +17,77 @@ namespace trading_platform.Controllers
         [HttpGet]
         public IActionResult GetWallets()
         {
-            var wallets = _context.Wallets.ToList();
+            var wallets = _context.Wallets(w => new WalletResponseDto
+            {
+                Id = w.Id,
+                Balance = w.Balance,
+                Currency = w.Currency,
+                UserId = w.UserId
+            })
+                .ToList();
             return Ok(wallets);
         }
         [HttpGet("{id}")]
         public IActionResult GetWallet(int id)
         {
             var wallet = _context.Wallets.Find(id);
-            if (wallet == null)
+            if (wallet == null) return NotFound();
+            var response = new WalletResponseDto
             {
-                return NotFound();
-            }
-            return Ok(wallet);
+                Id = wallet.Id,
+                Balance = wallet.Balance,
+                Currency = wallet.Currency,
+                UserId = wallet.UserId
+            };
+            return Ok(response);
         }
         [HttpPost]
-        public IActionResult CreateWallet(Wallet wallet)
+        public IActionResult CreateWallet(CreateWalletDto dto)
         {
+            var wallet = new Wallet
+            {
+                Balance = dto.Balance,
+                Currency = dto.Currency,
+                UserId = dto.UserId
+            };
             _context.Wallets.Add(wallet);
             _context.SaveChanges();
-            return CreatedAtAction(nameof(GetWallet), new { id=wallet.Id}, wallet);
+
+            var response = new WalletResponseDto
+            {
+                Id = wallet.Id,
+                Balance = wallet.Balance,
+                Currency = wallet.Currency,
+                UserId = wallet.UserId
+            };
+
+            return CreatedAtAction(nameof(GetWallet), new { id=wallet.Id}, response);
         }
         [HttpPut("{id}")]
-        public IActionResult UpdateWallet(int id, Wallet updated)
+        public IActionResult UpdateWallet(int id, UpdateWalletDto dto)
         {
             var wallet = _context.Wallets.Find(id);
-            if (wallet == null)
-            {
-                return NotFound();
-            }
+            if (wallet == null) return NotFound();
 
-            wallet.Balance = updated.Balance;
-            wallet.Currency = updated.Currency;
-            wallet.UserId = updated.UserId;
-
+            wallet.Balance = dto.Balance;
+            wallet.Currency = dto.Currency;
             _context.SaveChanges();
-            return Ok(wallet);
+
+            var response = new WalletResponseDto
+            {
+                Id = wallet.Id,
+                Balance = wallet.Balance,
+                Currency = wallet.Currency,
+                UserId = wallet.UserId
+            };
+
+            return Ok(response);
         }
         [HttpDelete]
         public IActionResult DeleteWallet(int id)
         {
             var wallet = _context.Wallets.Find(id);
-            if (wallet == null)
-            {
-                return NotFound();
-            }
+            if (wallet == null) return NotFound();
             _context.Wallets.Remove(wallet);
             _context.SaveChanges();
             return NoContent();
