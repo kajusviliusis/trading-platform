@@ -14,5 +14,5 @@ packages/
 # Logs
 *.log
 
-appsettings.json
+trading-platform/appsettings.json
 
