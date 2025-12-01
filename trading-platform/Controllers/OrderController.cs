@@ -108,6 +108,19 @@ namespace trading_platform.Controllers
             _context.Orders.Add(order);
             _context.SaveChanges();
 
+            var transaction = new Transaction
+            {
+                UserId = dto.UserId,
+                StockId = dto.StockId,
+                OrderId = order.Id,
+                Quantity = dto.Quantity,
+                PriceAtExecution = stock.Price,
+                Timestamp = DateTime.UtcNow,
+                Type = dto.Type
+            };
+            _context.Transactions.Add(transaction);
+            _context.SaveChanges();
+
             var response = new OrderResponseDto
             {
                 Id = order.Id,
@@ -132,5 +145,18 @@ namespace trading_platform.Controllers
             _context.SaveChanges();
             return NoContent();
         }
+
+        [HttpGet("user/{userId}/transactions")]
+        public IActionResult GetTransactionsByUser(int userId)
+        {
+            var transactions = _context.Transactions
+                .Where(t => t.UserId == userId)
+                .OrderByDescending(t => t.Timestamp)
+                .ToList();
+
+            return Ok(transactions);
+        }
+
+
     }
 }
