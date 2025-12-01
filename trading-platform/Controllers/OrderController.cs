@@ -59,15 +59,34 @@ namespace trading_platform.Controllers
             var stock = _context.Stocks.Find(dto.StockId);
             if (stock == null) return BadRequest("Invalid StockId");
 
-            var order = new Order
+            var wallet = _context.Wallets.FirstOrDefault(w => w.UserId == dto.UserId);
+            if (wallet == null) return BadRequest("Wallet not found");
+
+            var cost = dto.Quantity * stock.Price;
+
+            if(dto.Type == "BUY")
             {
-                UserId = dto.UserId,
-                StockId = dto.StockId,
-                Quantity = dto.Quantity,
-                Type = dto.Type,
-                PriceAtExecution = stock.Price,
-                Timestamp = DateTime.UtcNow
-            };
+                if(wallet.Balance<cost)
+                {
+                    return BadRequest("Insufficient funds");
+                }
+                wallet.Balance -= cost;
+            }
+            else if(dto.Type == "SELL")
+            {
+                //to do : paziuret holdingus
+                wallet.Balance += cost;
+            }
+
+                var order = new Order
+                {
+                    UserId = dto.UserId,
+                    StockId = dto.StockId,
+                    Quantity = dto.Quantity,
+                    Type = dto.Type,
+                    PriceAtExecution = stock.Price,
+                    Timestamp = DateTime.UtcNow
+                };
             _context.Orders.Add(order);
             _context.SaveChanges();
 
