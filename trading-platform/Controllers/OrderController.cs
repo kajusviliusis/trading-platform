@@ -72,10 +72,27 @@ namespace trading_platform.Controllers
                 }
                 wallet.Balance -= cost;
 
+                var holding = _context.Holdings
+                    .FirstOrDefault(h => h.UserId == dto.UserId && h.StockId == dto.StockId);
+                if (holding == null)
+                {
+                    holding = new Holding { UserId = dto.UserId, StockId = dto.StockId, Quantity = dto.Quantity};
+                    _context.Holdings.Add(holding);
+                }
+                else
+                {
+                    holding.Quantity += dto.Quantity;
+                }
             }
             else if(dto.Type == "SELL")
             {
-                //to do : paziuret holdingus
+                var holding = _context.Holdings
+                    .FirstOrDefault(h => h.UserId == dto.UserId && h.StockId == dto.StockId);
+                if (holding == null || holding.Quantity < dto.Quantity)
+                {
+                    return BadRequest("Not enough shares to sell");
+                }
+                holding.Quantity -= dto.Quantity;
                 wallet.Balance += cost;
             }
 
