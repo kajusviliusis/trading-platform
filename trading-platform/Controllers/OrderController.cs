@@ -71,6 +71,7 @@ namespace trading_platform.Controllers
                     return BadRequest("Insufficient funds");
                 }
                 wallet.Balance -= cost;
+
             }
             else if(dto.Type == "SELL")
             {

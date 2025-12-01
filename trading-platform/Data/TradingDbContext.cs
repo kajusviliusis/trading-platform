@@ -10,6 +10,7 @@ namespace trading_platform.Data
         public DbSet<Stock> Stocks { get; set; }
         public DbSet<Wallet> Wallets { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<Holding> Holdings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

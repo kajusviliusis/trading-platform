@@ -1,6 +1,6 @@
 ﻿namespace trading_platform.Models.Entities
 {
-    public class Holdings
+    public class Holding
     {
         public int Id { get; set; }
         public int UserId { get; set; }
