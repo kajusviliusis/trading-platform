@@ -29,6 +29,10 @@ namespace trading_platform.Data
                 .HasMany(s => s.Orders)
                 .WithOne(o => o.Stock)
                 .HasForeignKey(o => o.StockId);
+            modelBuilder.Entity<Holding>()
+                .HasOne(h => h.Stock)
+                .WithMany()
+                .HasForeignKey(h => h.StockId);
 
             base.OnModelCreating(modelBuilder);
         }
