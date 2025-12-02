@@ -13,13 +13,46 @@ namespace trading_platform.Services
             _context = context;
         }
 
-        public Order PlaceOrder(CreateOrderDto dto)
+        public IEnumerable<OrderResponseDto> GetOrders()
         {
-            var stock = _context.Stocks.Find(dto.StockId);
-            if (stock == null) throw new Exception("Invalid StockId");
+            return _context.Orders
+                .Select(o => new OrderResponseDto
+                {
+                    Id = o.Id,
+                    Quantity = o.Quantity,
+                    Type = o.Type,
+                    PriceAtExecution = o.PriceAtExecution,
+                    Timestamp = o.Timestamp,
+                    UserId = o.UserId,
+                    StockId = o.StockId
+                })
+                .ToList();
+        }
 
-            var wallet = _context.Wallets.FirstOrDefault(w => w.UserId == dto.UserId);
-            if (wallet == null) throw new Exception("Wallet not found");
+        public OrderResponseDto? GetOrder(int id)
+        {
+            var order = _context.Orders.Find(id);
+            if (order == null) return null;
+
+            return new OrderResponseDto
+            {
+                Id = order.Id,
+                Quantity = order.Quantity,
+                Type = order.Type,
+                PriceAtExecution = order.PriceAtExecution,
+                Timestamp = order.Timestamp,
+                UserId = order.UserId,
+                StockId = order.StockId
+            };
+        }
+
+        public OrderResponseDto PlaceOrder(CreateOrderDto dto)
+        {
+            var stock = _context.Stocks.Find(dto.StockId)
+                ?? throw new Exception("Invalid StockId");
+
+            var wallet = _context.Wallets.FirstOrDefault(w => w.UserId == dto.UserId)
+                ?? throw new Exception("Wallet not found");
 
             var cost = dto.Quantity * stock.Price;
 
@@ -59,7 +92,6 @@ namespace trading_platform.Services
                 PriceAtExecution = stock.Price,
                 Timestamp = DateTime.UtcNow
             };
-
             _context.Orders.Add(order);
             _context.SaveChanges();
 
@@ -73,12 +105,37 @@ namespace trading_platform.Services
                 Timestamp = DateTime.UtcNow,
                 Type = dto.Type
             };
-
             _context.Transactions.Add(transaction);
             _context.SaveChanges();
 
-            return order;
+            return new OrderResponseDto
+            {
+                Id = order.Id,
+                Quantity = order.Quantity,
+                Type = order.Type,
+                PriceAtExecution = order.PriceAtExecution,
+                Timestamp = order.Timestamp,
+                UserId = order.UserId,
+                StockId = order.StockId
+            };
+        }
+
+        public bool DeleteOrder(int id)
+        {
+            var order = _context.Orders.Find(id);
+            if (order == null) return false;
+
+            _context.Orders.Remove(order);
+            _context.SaveChanges();
+            return true;
+        }
+
+        public IEnumerable<Transaction> GetTransactionsByUser(int userId)
+        {
+            return _context.Transactions
+                .Where(t => t.UserId == userId)
+                .OrderByDescending(t => t.Timestamp)
+                .ToList();
         }
     }
-
 }

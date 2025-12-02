@@ -2,6 +2,7 @@
 using trading_platform.Data;
 using trading_platform.Dtos;
 using trading_platform.Models.Entities;
+using trading_platform.Services;
 
 namespace trading_platform.Controllers
 {
@@ -9,154 +10,53 @@ namespace trading_platform.Controllers
     [Route("api/[controller]")]
     public class OrderController : ControllerBase
     {
-        private readonly TradingDbContext _context;
+        private readonly OrderService _orderService;
 
-        public OrderController(TradingDbContext context)
+        public OrderController(OrderService orderService)
         {
-            _context = context;
+            _orderService = orderService;
         }
 
         [HttpGet]
         public IActionResult GetOrders()
         {
-            var orders = _context.Orders
-                .Select(o => new OrderResponseDto
-                {
-                    Id = o.Id,
-                    Quantity = o.Quantity,
-                    Type = o.Type,
-                    PriceAtExecution = o.PriceAtExecution,
-                    Timestamp = o.Timestamp,
-                    UserId = o.UserId,
-                    StockId = o.StockId
-                })
-                .ToList();
-            return Ok(orders);
+            return Ok(_orderService.GetOrders());
         }
 
         [HttpGet("{id}")]
         public IActionResult GetOrder(int id)
         {
-            var order = _context.Orders.Find(id);
+            var order = _orderService.GetOrder(id);
             if (order == null) return NotFound();
-            var response = new OrderResponseDto
-            {
-                Id = order.Id,
-                Quantity = order.Quantity,
-                Type = order.Type,
-                PriceAtExecution = order.PriceAtExecution,
-                Timestamp = order.Timestamp,
-                UserId = order.UserId,
-                StockId = order.StockId
-
-            };
-            return Ok(response);
+            return Ok(order);
         }
 
         [HttpPost]
         public IActionResult CreateOrder(CreateOrderDto dto)
         {
-            var stock = _context.Stocks.Find(dto.StockId);
-            if (stock == null) return BadRequest("Invalid StockId");
-
-            var wallet = _context.Wallets.FirstOrDefault(w => w.UserId == dto.UserId);
-            if (wallet == null) return BadRequest("Wallet not found");
-
-            var cost = dto.Quantity * stock.Price;
-
-            if(dto.Type == "BUY")
+            try
             {
-                if(wallet.Balance<cost)
-                {
-                    return BadRequest("Insufficient funds");
-                }
-                wallet.Balance -= cost;
-
-                var holding = _context.Holdings
-                    .FirstOrDefault(h => h.UserId == dto.UserId && h.StockId == dto.StockId);
-                if (holding == null)
-                {
-                    holding = new Holding { UserId = dto.UserId, StockId = dto.StockId, Quantity = dto.Quantity};
-                    _context.Holdings.Add(holding);
-                }
-                else
-                {
-                    holding.Quantity += dto.Quantity;
-                }
+                var response = _orderService.PlaceOrder(dto);
+                return CreatedAtAction(nameof(GetOrder), new { id = response.Id }, response);
             }
-            else if(dto.Type == "SELL")
+            catch (Exception ex)
             {
-                var holding = _context.Holdings
-                    .FirstOrDefault(h => h.UserId == dto.UserId && h.StockId == dto.StockId);
-                if (holding == null || holding.Quantity < dto.Quantity)
-                {
-                    return BadRequest("Not enough shares to sell");
-                }
-                holding.Quantity -= dto.Quantity;
-                wallet.Balance += cost;
+                return BadRequest(ex.Message);
             }
-
-                var order = new Order
-                {
-                    UserId = dto.UserId,
-                    StockId = dto.StockId,
-                    Quantity = dto.Quantity,
-                    Type = dto.Type,
-                    PriceAtExecution = stock.Price,
-                    Timestamp = DateTime.UtcNow
-                };
-            _context.Orders.Add(order);
-            _context.SaveChanges();
-
-            var transaction = new Transaction
-            {
-                UserId = dto.UserId,
-                StockId = dto.StockId,
-                OrderId = order.Id,
-                Quantity = dto.Quantity,
-                PriceAtExecution = stock.Price,
-                Timestamp = DateTime.UtcNow,
-                Type = dto.Type
-            };
-            _context.Transactions.Add(transaction);
-            _context.SaveChanges();
-
-            var response = new OrderResponseDto
-            {
-                Id = order.Id,
-                Quantity = order.Quantity,
-                Type = order.Type,
-                PriceAtExecution = order.PriceAtExecution,
-                Timestamp = order.Timestamp,
-                UserId = order.UserId,
-                StockId = order.StockId
-            };
-
-            return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, response);
         }
 
         [HttpDelete("{id}")]
         public IActionResult DeleteOrder(int id)
         {
-            var order = _context.Orders.Find(id);
-            if (order == null) return NotFound();
-
-            _context.Orders.Remove(order);
-            _context.SaveChanges();
-            return NoContent();
+            var success = _orderService.DeleteOrder(id);
+            return success ? NoContent() : NotFound();
         }
 
         [HttpGet("user/{userId}/transactions")]
         public IActionResult GetTransactionsByUser(int userId)
         {
-            var transactions = _context.Transactions
-                .Where(t => t.UserId == userId)
-                .OrderByDescending(t => t.Timestamp)
-                .ToList();
-
-            return Ok(transactions);
+            return Ok(_orderService.GetTransactionsByUser(userId));
         }
-
-
     }
+
 }
