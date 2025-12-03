@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Order, Holding, Transaction } from "../types";
 
-const API_URL = "http://localhost:7212/api";
+const API_URL = "https://localhost:7212/api";
 const USER_ID = 1; //hardcoded paskui pakeist 
 
 export async function getOrders(): Promise<Order[]> {
