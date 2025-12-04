@@ -14,7 +14,7 @@ namespace trading_platform.Services
             _apiKey = config["Finnhub:ApiKey"];
         }
 
-        public async Task<StockQuoteDto> GetQouteAsync(string symbol)
+        public async Task<StockQuoteDto> GetQuoteAsync(string symbol)
         {
             var url = $"https://finnhub.io/api/v1/quote?symbol={symbol}&token={_apiKey}";
             var res = await _http.GetFromJsonAsync<FinnhubQuoteResponse>(url);
