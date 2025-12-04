@@ -35,5 +35,5 @@ export interface Stock {
 	id: number;
 	symbol: string;
 	name: string;
-	currentPrice: number;
+	price: number;
 }

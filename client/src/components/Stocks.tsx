@@ -25,7 +25,7 @@ const Stocks: React.FC = () => {
                         <tr key={s.id}>
                             <td>{s.symbol}</td>
                             <td>{s.name}</td>
-                            <td>${s.currentPrice}</td>
+                            <td>${s.price}</td>
                         </tr>
                     ))}
                 </tbody>
