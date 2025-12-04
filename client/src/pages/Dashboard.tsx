@@ -1,6 +1,6 @@
 import React from "react";
 import WalletComponent from "../components/Wallet";
-import Stocks from "../components/Stocks";
+import LiveQuote from "../components/LiveQuote";
 import Holdings from "../components/Holdings";
 import Orders from "../components/Orders";
 import Transactions from "../components/Transactions";
@@ -12,7 +12,7 @@ const Dashboard: React.FC = () => {
             <h1 className="dashboard-title">Trading Dashboard</h1>
             <div className="dashboard-grid">
                 <div className="card"><WalletComponent /></div>
-                <div className="card"><Stocks /></div>
+                <div className="card"><LiveQuote symbol ="AAPL" /></div>
                 <div className="card"><PlaceOrder /></div>
                 <div className="card"><Holdings /></div>
                 <div className="card"><Orders /></div>

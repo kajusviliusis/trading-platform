@@ -22,19 +22,18 @@ namespace trading_platform.Controllers
             _finnhub = finnhub;
         }
         [HttpGet]
-        public IActionResult GetStocks()
+        public async Task<IActionResult> GetStocks()
         {
-            var stocks = _context.Stocks
-                .Select(s => new StockResponseDto {
-                    Id = s.Id,
-                    Name = s.Name,
-                    Symbol = s.Symbol,
-                    Price = s.Price,
-                    UpdatedAt = s.UpdatedAt
+            var symbols = _context.Stocks.Select(s => s.Symbol).ToList();
+            var quotes = new List<StockQuoteDto>();
 
-                    })
-                .ToList();
-            return Ok(stocks);
+            foreach (var symbol in symbols)
+            {
+                var dto = await _finnhub.GetQuoteAsync(symbol);
+                if (dto != null) quotes.Add(dto);
+            }
+
+            return Ok(quotes);
         }
         [HttpGet("{id}")]
         public IActionResult GetStock(int id)
