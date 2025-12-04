@@ -36,6 +36,7 @@ export interface Stock {
 	symbol: string;
 	name: string;
 	price: number;
+	updatedAt: string;
 }
 export interface StockQuote {
 	symbol: string;

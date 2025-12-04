@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using trading_platform.Data;
@@ -24,16 +25,18 @@ namespace trading_platform.Controllers
         [HttpGet]
         public async Task<IActionResult> GetStocks()
         {
-            var symbols = _context.Stocks.Select(s => s.Symbol).ToList();
-            var quotes = new List<StockQuoteDto>();
+            var stocks = await _context.Stocks.ToListAsync();
 
-            foreach (var symbol in symbols)
+            var response = stocks.Select(s => new StockResponseDto
             {
-                var dto = await _finnhub.GetQuoteAsync(symbol);
-                if (dto != null) quotes.Add(dto);
-            }
+                Id = s.Id,
+                Symbol = s.Symbol,
+                Name = s.Name,
+                Price = s.Price,
+                UpdatedAt = s.UpdatedAt
+            });
 
-            return Ok(quotes);
+            return Ok(response);
         }
         [HttpGet("{id}")]
         public IActionResult GetStock(int id)

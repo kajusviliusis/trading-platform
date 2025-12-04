@@ -6,18 +6,30 @@ const Stocks: React.FC = () => {
     const [stocks, setStocks] = useState<Stock[]>([]);
 
     useEffect(() => {
-        getStocks().then(setStocks).catch(console.error);
+        const fetchStocks = async () => {
+            try {
+                const data = await getStocks();
+                setStocks(data);
+            } catch (err) {
+                console.error("Error fetching stocks:", err);
+            }
+        };
+
+        fetchStocks();
+        const interval = setInterval(fetchStocks, 5000);
+        return () => clearInterval(interval);
     }, []);
 
     return (
-        <div>
+        <div className="stocks">
             <h2>Stocks</h2>
-            <table className="table">
+            <table>
                 <thead>
                     <tr>
                         <th>Symbol</th>
                         <th>Name</th>
-                        <th>Current Price</th>
+                        <th>Price</th>
+                        <th>Updated At</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -25,7 +37,10 @@ const Stocks: React.FC = () => {
                         <tr key={s.id}>
                             <td>{s.symbol}</td>
                             <td>{s.name}</td>
-                            <td>${s.price}</td>
+                            <td style={{ color: s.price >= 0 ? "green" : "red" }}>
+                                ${s.price}
+                            </td>
+                            <td>{new Date(s.updatedAt).toLocaleTimeString()}</td>
                         </tr>
                     ))}
                 </tbody>
