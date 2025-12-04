@@ -25,3 +25,15 @@ export interface Transaction {
 	timestamp: string;
 	type: "BUY" | "SELL";
 }
+export interface Wallet {
+	id: number;
+	balance: number;
+	currency: string;
+	userId: number;
+}
+export interface Stock {
+	id: number;
+	symbol: string;
+	name: string;
+	currentPrice: number;
+}

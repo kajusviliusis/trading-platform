@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Order, Holding, Transaction } from "../types";
+import { Order, Holding, Transaction, Wallet, Stock } from "../types";
 
 const API_URL = "https://localhost:7212/api";
 const USER_ID = 1; //hardcoded paskui pakeist 
@@ -18,7 +18,15 @@ export async function getTransactions(): Promise<Transaction[]> {
     const res = await axios.get(`${API_URL}/order/user/${USER_ID}/transactions`);
     return res.data;
 }
+export async function getStocks(): Promise<Stock[]> {
+    const res = await axios.get(`${API_URL}/Stock`);
+    return res.data;
+}
 
+export async function getWallet(): Promise<Wallet> {
+  const res = await axios.get(`${ API_URL }/Wallet/${ USER_ID }`);
+  return res.data;
+}
 export async function createOrder(dto: {
     stockId: number;
     quantity: number;
