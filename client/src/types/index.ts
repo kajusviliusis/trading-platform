@@ -37,3 +37,11 @@ export interface Stock {
 	name: string;
 	price: number;
 }
+export interface StockQuote {
+	symbol: string;
+	currentPrice: number;
+	open: number;
+	high: number;
+	low: number;
+	previousClose: number;
+}
