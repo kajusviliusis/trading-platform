@@ -17,5 +17,9 @@
         public decimal Balance { get; set; }
         public string Currency { get; set; } = string.Empty;
         public int UserId { get; set; }
+
+        public decimal PortfolioValue { get; set; }
+        public decimal TotalBalance { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 }

@@ -30,6 +30,9 @@ export interface Wallet {
 	balance: number;
 	currency: string;
 	userId: number;
+	portfolioValue: number;
+	totalBalance: number;
+	updatedAt: string;
 }
 export interface Stock {
 	id: number;
@@ -38,6 +41,7 @@ export interface Stock {
 	price: number;
 	updatedAt: string;
 }
+
 export interface StockQuote {
 	symbol: string;
 	currentPrice: number;

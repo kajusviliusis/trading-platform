@@ -3,7 +3,7 @@
     public class Order
     {
         public int Id { get; set; }
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
         public string Type { get; set; } = "Buy";
         public decimal PriceAtExecution { get; set; }
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;

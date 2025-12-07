@@ -19,12 +19,12 @@ namespace trading_platform.Controllers
         {
             var wallets = _context.Wallets
                 .Select(w => new WalletResponseDto
-            {
-                Id = w.Id,
-                Balance = w.Balance,
-                Currency = w.Currency,
-                UserId = w.UserId
-            })
+                {
+                    Id = w.Id,
+                    Balance = w.Balance,
+                    Currency = w.Currency,
+                    UserId = w.UserId
+                })
                 .ToList();
             return Ok(wallets);
         }
@@ -62,7 +62,7 @@ namespace trading_platform.Controllers
                 UserId = wallet.UserId
             };
 
-            return CreatedAtAction(nameof(GetWallet), new { id=wallet.Id}, response);
+            return CreatedAtAction(nameof(GetWallet), new { id = wallet.Id }, response);
         }
         [HttpPut("{id}")]
         public IActionResult UpdateWallet(int id, UpdateWalletDto dto)
@@ -92,6 +92,30 @@ namespace trading_platform.Controllers
             _context.Wallets.Remove(wallet);
             _context.SaveChanges();
             return NoContent();
+        }
+        [HttpGet("user/{userId}/balance")]
+        public async Task<IActionResult> GetUserBalance(int userId)
+        {
+            var wallet = _context.Wallets.FirstOrDefault(w => w.UserId == userId);
+            var holdings = _context.Holdings.Where(h => h.UserId == userId).ToList();
+            var stocks = _context.Stocks.ToList();
+
+            decimal portfolioValue = 0;
+            foreach (var h in holdings)
+            {
+                var stock = stocks.FirstOrDefault(s => s.Id == h.StockId);
+                if (stock != null) portfolioValue += h.Quantity * stock.Price;
+            }
+
+            var totalBalance = (wallet?.Balance ?? 0) + portfolioValue;
+            var dto = new WalletResponseDto
+            {
+                Balance = wallet?.Balance ?? 0,
+                PortfolioValue = portfolioValue,
+                TotalBalance = (wallet?.Balance ?? 0) + portfolioValue,
+                UpdatedAt = DateTime.UtcNow
+            };
+            return Ok(dto);
         }
     }
 }

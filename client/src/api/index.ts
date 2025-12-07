@@ -22,10 +22,13 @@ export async function getStocks(): Promise<Stock[]> {
     const res = await axios.get(`${API_URL}/Stock`);
     return res.data;
 }
-
+export async function getWalletBalance(): Promise<Wallet> {
+    const res = await axios.get(`${API_URL}/Wallet/user/${USER_ID}/balance`);
+    return res.data;
+}
 export async function getWallet(): Promise<Wallet> {
   const res = await axios.get(`${ API_URL }/Wallet/${ USER_ID }`);
-  return res.data;
+  return res.data as Wallet;
 }
 export async function getLiveQuote(symbol: string): Promise<StockQuote> {
     const res = await axios.get(`${API_URL}/Stock/live/${symbol}`);
