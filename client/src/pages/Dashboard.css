@@ -1,34 +1,54 @@
-body {
-    background-color: #121212;
-    color: #e0e0e0;
-    font-family: "Inter", sans-serif;
-}
+/* Dashboard.css */
 
 .dashboard {
-    padding: 2rem;
-}
-
-.dashboard-title {
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
-}
-
-.dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 1.5rem;
+    padding: 2rem;
+    background-color: #121212; /* dark background */
 }
 
+/* Card styling */
 .card {
-    background-color: #1e1e1e;
+    background-color: #1C1C1C; /* lighter than body so it stands out */
     border-radius: 12px;
     padding: 1.5rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    border: 1px solid #2A2A2A; /* subtle border for separation */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.8);
+    }
+
+    /* Card headings */
     .card h2 {
-        margin-bottom: 1rem;
+        color: #FFFFFF;
         font-size: 1.2rem;
+        margin-bottom: 1rem;
         border-bottom: 1px solid #333;
         padding-bottom: 0.5rem;
+    }
+
+    /* Card content */
+    .card ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .card li {
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+        color: #E0E0E0;
+    }
+
+        .card li strong {
+            color: #FFFFFF;
+        }
+
+    .card .accent {
+        color: #00BFA5;
+        font-weight: 600;
     }
