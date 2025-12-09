@@ -77,7 +77,7 @@ namespace trading_platform.Controllers
                 UpdatedAt = stock.UpdatedAt
             };
 
-            return CreatedAtAction(nameof(GetStock), new { id = stock.Id}, response);
+            return CreatedAtAction(nameof(GetStock), new { id = stock.Id }, response);
         }
         [HttpPut("{id}")]
         public IActionResult UpdateStock(int id, UpdateStockDto dto)
@@ -118,5 +118,55 @@ namespace trading_platform.Controllers
 
             return Ok(dto);
         }
+
+        [HttpPost("seed/sp500")]
+        public async Task<IActionResult> SeedSp500Async([FromQuery] bool fetchInitialPrices = true)
+        {
+            var symbols = await _finnhub.GetSp500ConstituentsAsync();
+            if (symbols.Count == 0) return Problem("No constituents returned from Finnhub.");
+
+            var existing = await _context.Stocks
+                .Select(s => s.Symbol)
+                .ToListAsync();
+
+            var toInsert = symbols
+                .Where(s => !existing.Contains(s))
+                .ToList();
+
+            if (toInsert.Count == 0)
+            {
+                return Ok(new { inserted = 0, message = "All S&P 500 symbols already exist." });
+            }
+
+            var now = DateTime.UtcNow;
+            var batch = new List<Stock>(capacity: toInsert.Count);
+
+            foreach (var symbol in toInsert)
+            {
+                var name = await _finnhub.GetCompanyNameAsync(symbol);
+                decimal initialPrice = 0m;
+                if (fetchInitialPrices)
+                {
+                    var quote = await _finnhub.GetQuoteAsync(symbol);
+                    if (quote != null) initialPrice = quote.CurrentPrice;
+                    //del limitu delay
+                    await Task.Delay(50);
+                }
+
+                batch.Add(new Stock
+                {
+                    Symbol = symbol,
+                    Name = name,
+                    Price = initialPrice,
+                    UpdatedAt = now
+                });
+            }
+
+            await _context.Stocks.AddRangeAsync(batch);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { inserted = batch.Count });
+        }
+
     }
 }
