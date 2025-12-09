@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.Json;
 using trading_platform.Data;
 using trading_platform.Dtos;
@@ -120,7 +121,7 @@ namespace trading_platform.Controllers
         }
 
         [HttpPost("seed/sp500")]
-        public async Task<IActionResult> SeedSp500Async([FromQuery] bool fetchInitialPrices = true)
+        public async Task<IActionResult> SeedSp500Async([FromQuery] bool fetchInitialPrices = false)
         {
             var symbols = await _finnhub.GetSp500ConstituentsAsync();
             if (symbols.Count == 0) return Problem("No constituents returned from Finnhub.");
@@ -168,5 +169,59 @@ namespace trading_platform.Controllers
             return Ok(new { inserted = batch.Count });
         }
 
+        [HttpPost("seed/csv")]
+        public async Task<IActionResult> SeedFromCsvAsync(IFormFile file)
+        {
+            if (file == null || file.Length == 0) return BadRequest("CSV file is required.");
+
+            using var stream = file.OpenReadStream();
+            using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
+
+            var header = await reader.ReadLineAsync();
+            if (string.IsNullOrWhiteSpace(header)) return BadRequest("CSV header is missing.");
+
+            var delimiter = header.Contains('\t') ? '\t' : ',';
+            var headers = header.Split(delimiter, StringSplitOptions.TrimEntries);
+
+            int idxSymbol = Array.FindIndex(headers, h => string.Equals(h, "Symbol", StringComparison.OrdinalIgnoreCase));
+            int idxName = Array.FindIndex(headers, h =>
+                string.Equals(h, "Security", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(h, "Name", StringComparison.OrdinalIgnoreCase));
+
+            if (idxSymbol < 0) return BadRequest("CSV must contain a 'Symbol' header.");
+
+            var existingSymbols = await _context.Stocks.Select(s => s.Symbol).ToListAsync();
+            var now = DateTime.UtcNow;
+            var batch = new List<Stock>();
+
+            string? line;
+            while ((line = await reader.ReadLineAsync()) != null)
+            {
+                if (string.IsNullOrWhiteSpace(line)) continue;
+                var cells = line.Split(delimiter);
+                if (idxSymbol >= cells.Length) continue;
+
+                var symbol = cells[idxSymbol].Trim();
+                if (string.IsNullOrWhiteSpace(symbol)) continue;
+                if (existingSymbols.Contains(symbol)) continue;
+
+                var name = (idxName >= 0 && idxName < cells.Length) ? cells[idxName].Trim() : symbol;
+
+                batch.Add(new Stock
+                {
+                    Symbol = symbol,
+                    Name = string.IsNullOrWhiteSpace(name) ? symbol : name,
+                    Price = 0m,
+                    UpdatedAt = now
+                });
+            }
+
+            if (batch.Count == 0) return Ok(new { inserted = 0, message = "No new symbols to insert." });
+
+            await _context.Stocks.AddRangeAsync(batch);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { inserted = batch.Count });
+        }
     }
 }
