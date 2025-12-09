@@ -14,11 +14,11 @@ namespace trading_platform.Services
             _apiKey = config["Finnhub:ApiKey"];
         }
 
-        public async Task<StockQuoteDto> GetQuoteAsync(string symbol)
+        public async Task<StockQuoteDto?> GetQuoteAsync(string symbol)
         {
             var url = $"https://finnhub.io/api/v1/quote?symbol={symbol}&token={_apiKey}";
             var res = await _http.GetFromJsonAsync<FinnhubQuoteResponse>(url);
-            if(res == null) return null;
+            if (res == null) return null;
             return new StockQuoteDto
             {
                 Symbol = symbol,
@@ -29,7 +29,20 @@ namespace trading_platform.Services
                 PreviousClose = res.PreviousClose
             };
         }
+        public async Task<IReadOnlyList<string>> GetSp500ConstituentsAsync()
+        {
+            var url = $"https://finnhub.io/api/v1/index/constituents?symbol=%5EGSPC&token={_apiKey}";
+            var res = await _http.GetFromJsonAsync<FinnhubIndexConstituentsResponse>(url);
+            return res?.Constituents ?? new List<string>();
+        }
+        public async Task<string> GetCompanyNameAsync(string symbol)
+        {
+            var url = $"https://finnhub.io/api/v1/stock/profile2?symbol={symbol}&token={_apiKey}";
+            var res = await _http.GetFromJsonAsync<FinnhubProfile2Response>(url);
+            return string.IsNullOrWhiteSpace(res?.Name) ? symbol : res!.Name!;
+        }
     }
+
     public class FinnhubQuoteResponse
     {
         [JsonPropertyName("c")] public decimal CurrentPrice { get; set; }
@@ -37,5 +50,19 @@ namespace trading_platform.Services
         [JsonPropertyName("h")] public decimal High { get; set; }
         [JsonPropertyName("l")] public decimal Low { get; set; }
         [JsonPropertyName("pc")] public decimal PreviousClose { get; set; }
+    }
+    public class FinnhubIndexConstituentsResponse
+    {
+        [JsonPropertyName("constituents")] public List<string> Constituents { get; set; } = new();
+        [JsonPropertyName("symbol")] public string Symbol { get; set; } = string.Empty;
+    }
+
+    public class FinnhubProfile2Response
+    {
+        [JsonPropertyName("name")] public string? Name { get; set; }
+        [JsonPropertyName("ticker")] public string? Ticker { get; set; }
+        [JsonPropertyName("country")] public string? Country { get; set; }
+        [JsonPropertyName("currency")] public string? Currency { get; set; }
+        [JsonPropertyName("exchange")] public string? Exchange { get; set; }
     }
 }
