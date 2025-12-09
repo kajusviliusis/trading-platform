@@ -9,7 +9,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddHttpClient<FinnhubService>();
-builder.Services.AddHostedService<StockPriceUpdater>();
+if(builder.Configuration.GetValue<bool>("Finnhub:EnablePriceUpdater"))
+{
+    builder.Services.AddHostedService<StockPriceUpdater>();
+}
 builder.Services.AddDbContext<TradingDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
