@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using trading_platform.Data;
 using trading_platform.Models.Entities;
 using trading_platform.Dtos;
-using System.Runtime.InteropServices;
+using trading_platform.Services;
 
 namespace trading_platform.Controllers
 {
@@ -13,10 +13,12 @@ namespace trading_platform.Controllers
     public class UserController : ControllerBase
     {
         private readonly TradingDbContext _context;
+        private readonly IPasswordHasher _hasher;
 
-        public UserController(TradingDbContext context)
+        public UserController(TradingDbContext context, IPasswordHasher hasher)
         {
             _context = context;
+            _hasher = hasher;
         }
 
         [HttpGet]
@@ -54,8 +56,7 @@ namespace trading_platform.Controllers
             {
                 Username = dto.Username,
                 Email = dto.Email,
-                PasswordHash = dto.Password //add hashing later
-
+                PasswordHash = _hasher.Hash(dto.Password) // hash
             };
             _context.Users.Add(user);
             _context.SaveChanges();
@@ -63,7 +64,7 @@ namespace trading_platform.Controllers
             var response = new UserResponseDto
             {
                 Id = user.Id,
-                Username=user.Username,
+                Username = user.Username,
                 Email = user.Email,
                 CreatedAt = user.CreatedAt
             };
