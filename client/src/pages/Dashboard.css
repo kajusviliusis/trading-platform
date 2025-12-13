@@ -1,54 +1,87 @@
 /* Dashboard.css */
 
 .dashboard {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 1.5rem;
-    padding: 2rem;
-    background-color: #121212; /* dark background */
+  /* simple centered container */
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px;
+  background-color: #121212; /* dark background */
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.dashboard-header h2 {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Stack items vertically, one per row */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* single column */
+  gap: 16px;
 }
 
 /* Card styling */
 .card {
-    background-color: #1C1C1C; /* lighter than body so it stands out */
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-    border: 1px solid #2A2A2A; /* subtle border for separation */
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background-color: #1C1C1C;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-    .card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 6px 16px rgba(0,0,0,0.8);
-    }
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.6);
+}
 
-    /* Card headings */
-    .card h2 {
-        color: #FFFFFF;
-        font-size: 1.2rem;
-        margin-bottom: 1rem;
-        border-bottom: 1px solid #333;
-        padding-bottom: 0.5rem;
-    }
+/* Card headings */
+.card h2 {
+  color: #FFFFFF;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #333;
+  padding-bottom: 0.5rem;
+}
 
-    /* Card content */
-    .card ul {
-        list-style: none;
-        padding: 0;
-    }
+/* Card content */
+.card ul {
+  list-style: none;
+  padding: 0;
+}
 
-    .card li {
-        margin-bottom: 0.5rem;
-        font-size: 0.95rem;
-        color: #E0E0E0;
-    }
+.card li {
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  color: #E0E0E0;
+}
 
-        .card li strong {
-            color: #FFFFFF;
-        }
+.card li strong {
+  color: #FFFFFF;
+}
 
-    .card .accent {
-        color: #00BFA5;
-        font-weight: 600;
-    }
+.card .accent {
+  color: #00BFA5;
+  font-weight: 600;
+}
+
+/* Minimal button styling reused across */
+.logout-button {
+  padding: 6px 12px;
+  border: 1px solid #bbb;
+  background: #f9f9f9;
+  color: #111;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.logout-button:hover {
+  background: #f1f1f1;
+}
