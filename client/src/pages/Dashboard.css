@@ -85,3 +85,34 @@
 .logout-button:hover {
   background: #f1f1f1;
 }
+
+.dashboard-shell {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  min-height: 100vh;
+}
+
+.dashboard-sidebar {
+  position: relative; /* container remains in the grid */
+  background: #0f0f10;
+  border-right: 1px solid #222;
+  overflow: visible;
+}
+
+.dashboard-logo-rotated {
+  position: fixed;       /* anchor to viewport */
+  left: 0;               /* pin to left edge */
+  top: 50%;              /* vertically center */
+  transform: translateY(-50%) rotate(-90deg) scale(2.5);
+  transform-origin: center;
+  width: 120px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+  pointer-events: none;  /* prevent interactions causing focus/scroll */
+}
+
+.dashboard-logo-inline {
+  height: 200px;            /* header logo size */
+  object-fit: contain;
+  display: block;
+}

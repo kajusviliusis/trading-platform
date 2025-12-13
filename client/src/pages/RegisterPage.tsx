@@ -1,41 +1,45 @@
 import React, { useState } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
-import { login } from "../api";
+import { login, register } from "../api";
 import "./LoginPage.css";
 
-const LoginPage: React.FC = () => {
-  const navigate = useNavigate();
-  const location = useLocation() as any;
-  const redirectTo = location.state?.from?.pathname ?? "/dashboard";
-
+const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const onSubmit = async (e: React.FormEvent) => {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setLoading(true);
-    try {
-      await login(username, password);
-      navigate(redirectTo, { replace: true });
-    } catch (err: any) {
-      setError(err?.response?.data?.title ?? "Invalid credentials");
-    } finally {
-      setLoading(false);
+    if (!username || !password) {
+      setError("Username and password are required.");
+      return;
     }
-  };
+    setSubmitting(true);
+    try {
+      await register(username, password);
+      await login(username, password);
+      window.location.href = "/";
+    } catch (err: any) {
+      const status = err?.response?.status;
+      const serverTitle = err?.response?.data?.title ?? err?.response?.data?.message;
+      const message = serverTitle ?? err?.message ?? "Registration failed";
+      setError(status ? `${message} (HTTP ${status})` : message);
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <div className="login-container">
       <form className="login-form" onSubmit={onSubmit}>
         <img src="/6nuliai.png" alt="Logo" className="login-logo" />
-        <h2>Sign in</h2>
+        <h2>Create account</h2>
         {error && <div className="error">{error}</div>}
         <label>
           Username
           <input
+            type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             autoComplete="username"
@@ -47,18 +51,18 @@ const LoginPage: React.FC = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            autoComplete="current-password"
+            autoComplete="new-password"
           />
         </label>
-        <button type="submit" disabled={loading}>
-          {loading ? "Signing in..." : "Login"}
+        <button type="submit" className="logout-button" disabled={submitting}>
+          {submitting ? "Registering..." : "Register"}
         </button>
         <div style={{ marginTop: 8, textAlign: "center" }}>
-          <Link to="/register">Don&apos;t have an account? Register here</Link>
+          <a href="/login">Already have an account? Sign in</a>
         </div>
       </form>
     </div>
   );
 };
 
-export default LoginPage;
+export default RegisterPage;

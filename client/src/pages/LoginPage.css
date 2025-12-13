@@ -11,12 +11,14 @@ body {
 }
 
 .login-container {
-  display: grid; place-items: center; min-height: 100vh; 
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
 }
 
 .login-container {
   max-width: 420px;
-  margin: 80px auto;
+  margin: 40px auto;
   padding: 16px;
   border: 1px solid #333;
   border-radius: 6px;
@@ -24,12 +26,22 @@ body {
   color: #fff;
 }
 
+.login-logo {
+  display: block;
+  height: 180px;
+  margin: 0 auto 8px;   /* tighter gap before title */
+  object-fit: contain;
+}
+
 .login-form {
-  width: 320px; padding: 24px; border-radius: 8px; 
+  width: 320px;
+  padding: 24px;
+  border-radius: 8px;
+
 }
 
 .login-form h2 {
-  margin: 0 0 12px 0;
+  margin: 6px 0 10px;   /* tighter spacing under logo */
   font-weight: 600;
 }
 
@@ -72,4 +84,16 @@ body {
   border-radius: 4px;
   margin-bottom: 10px;
   font-size: 0.95rem;
+}
+
+/* Make links white on the login page */
+.login-form a {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.login-form a:hover,
+.login-form a:focus {
+  color: #f1f1f1;
+  text-decoration: underline;
 }

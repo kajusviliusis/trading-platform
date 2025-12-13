@@ -161,3 +161,7 @@ export async function login(username: string, password: string): Promise<void> {
   const { accessToken } = res.data as { accessToken: string };
   localStorage.setItem("accessToken", accessToken);
 }
+
+export async function register(username: string, password: string): Promise<void> {
+  await axios.post(`${API_BASE_URL}/api/auth/register`, { username, password });
+}
