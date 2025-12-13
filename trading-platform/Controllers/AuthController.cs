@@ -54,13 +54,13 @@ namespace trading_platform.Controllers
             {
                 Username = dto.Username,
                 PasswordHash = passwordHash,
-                Email = null
+                Email = string.Empty,
+                CreatedAt = DateTime.UtcNow
             };
 
             _db.Users.Add(user);
             await _db.SaveChangesAsync(ct);
 
-            // create default wallet
             _db.Wallets.Add(new Wallet
             {
                 UserId = user.Id,

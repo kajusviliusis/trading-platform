@@ -3,6 +3,7 @@
 .dashboard {
   /* simple centered container */
   max-width: 900px;
+  width: 900px;     /* force static width */
   margin: 0 auto;
   padding: 16px;
   background-color: #121212; /* dark background */
@@ -115,4 +116,26 @@
   height: 200px;            /* header logo size */
   object-fit: contain;
   display: block;
+}
+
+/* Ensure tables don’t shrink */
+.stocks table {
+  width: 100%;
+  table-layout: fixed; /* stable column widths */
+}
+
+.stocks th,
+.stocks td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Maintain height when empty state is shown */
+.stocks .empty-state {
+  min-height: 200px; /* reserve space */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
 }

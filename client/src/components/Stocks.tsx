@@ -56,7 +56,7 @@ const Stocks: React.FC = () => {
       </div>
 
       {query.trim().length === 0 ? (
-        <div style={{ padding: 12, color: "#555" }}>
+        <div className="empty-state">
           Start typing to search stocks...
         </div>
       ) : (
