@@ -6,6 +6,8 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using trading_platform.Data;
 using trading_platform.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,6 +70,11 @@ builder.Services
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     })
+    .AddCookie("External", options =>
+    {
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+        options.SlidingExpiration = false;
+    })
     .AddJwtBearer(options =>
     {
         options.RequireHttpsMetadata = false;
@@ -84,8 +91,15 @@ builder.Services
             ValidateLifetime = true,
             ClockSkew = TimeSpan.FromMinutes(2)
         };
+    })
+    .AddGoogle("Google", options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+        options.SignInScheme = "External"; //cookies
+        options.CallbackPath = "/signin-google";
+        options.SaveTokens = true;
     });
-
 builder.Services.AddAuthorization(options =>
 {
     options.FallbackPolicy = new AuthorizationPolicyBuilder()

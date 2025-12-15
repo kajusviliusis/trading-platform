@@ -20,9 +20,7 @@ const Holdings: React.FC = () => {
           const value = Number(h.quantity) * Number(h.currentPrice);
           return (
             <li key={h.stockId}>
-              {h.stockName}: {formatShares(Number(h.quantity))} shares @ ${formatMoney(Number(h.currentPrice))}
-              {" • "}
-              Value: ${formatMoney(value)}
+              {h.stockName}: {formatShares(Number(h.quantity))} shares @ ${formatMoney(Number(h.currentPrice))} &middot; Value: ${formatMoney(value)}
             </li>
           );
         })}

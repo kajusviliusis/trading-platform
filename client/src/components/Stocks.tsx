@@ -19,7 +19,6 @@ const Stocks: React.FC = () => {
         console.error("Error fetching stocks:", err);
       }
     };
-
     fetchStocks();
     const interval = setInterval(fetchStocks, 5000);
     return () => clearInterval(interval);
@@ -113,6 +112,11 @@ const Stocks: React.FC = () => {
           symbol={modal.symbol}
           type={modal.type}
           onClose={() => setModal(null)}
+          onSuccess={() => {
+            window.dispatchEvent(new CustomEvent("wallet:refresh"));
+            window.dispatchEvent(new CustomEvent("holdings:refresh"));
+            window.dispatchEvent(new CustomEvent("transactions:refresh"));
+          }}
         />
       )}
     </div>

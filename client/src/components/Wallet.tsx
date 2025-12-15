@@ -43,10 +43,7 @@ const WalletComponent: React.FC = () => {
       setAmountText("");
       await fetchWallet();
     } catch (err: any) {
-      const status = err?.response?.status;
-      const serverTitle = err?.response?.data?.title ?? err?.response?.data?.message;
-      const message = serverTitle ?? err?.message ?? "Failed to deposit funds";
-      setError(status ? `${message} (HTTP ${status})` : message);
+      setError(err?.response?.data?.title ?? "Failed to deposit funds");
     } finally {
       setLoading(false);
     }
@@ -63,33 +60,28 @@ const WalletComponent: React.FC = () => {
             <li><strong>Total Balance: ${wallet.totalBalance.toFixed(2)}</strong></li>
             <li>Last Updated: {new Date(wallet.updatedAt).toLocaleTimeString()}</li>
           </ul>
-
           <form
-  onSubmit={onDeposit}
-  style={{
-    display: "flex",
-    gap: 8,
-    alignItems: "flex-end",
-    marginTop: 8
-  }}
->
-  <label style={{ display: "flex", flexDirection: "column", flex: "0 1 200px" }}>
-    Deposit amount
-    <input
-      type="number"
-      inputMode="decimal"
-      min={1}
-      step="0.01"
-      value={amountText}
-      onChange={(e) => setAmountText(e.target.value)}
-      style={{ padding: 8, border: "1px solid #bbb", borderRadius: 4 }}
-      aria-label="Deposit amount"
-    />
-  </label>
-  <button type="submit" className="logout-button" disabled={loading}>
-    {loading ? "Depositing..." : "Deposit"}
-  </button>
-</form>
+            onSubmit={onDeposit}
+            style={{ display: "flex", gap: 8, alignItems: "flex-end", marginTop: 8 }}
+          >
+            <label style={{ display: "flex", flexDirection: "column", flex: "0 1 200px" }}>
+              Deposit amount
+              <input
+                type="number"
+                inputMode="decimal"
+                min={1}
+                step="0.01"
+                value={amountText}
+                onChange={(e) => setAmountText(e.target.value)}
+                style={{ padding: 8, border: "1px solid #bbb", borderRadius: 4 }}
+                aria-label="Deposit amount"
+                placeholder="Enter amount"
+              />
+            </label>
+            <button type="submit" className="logout-button" disabled={loading}>
+              {loading ? "Depositing..." : "Deposit"}
+            </button>
+          </form>
           {error && (
             <div style={{ marginTop: 8, border: "1px solid #7a3a3a", background: "#2a1a1a", color: "#ffb3b3", padding: 8, borderRadius: 4 }}>
               {error}
@@ -103,4 +95,4 @@ const WalletComponent: React.FC = () => {
   );
 };
 
-export default WalletComponent
+export default WalletComponent;
