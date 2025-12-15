@@ -39,7 +39,16 @@ namespace trading_platform.Services
                 ExpiresIn = (int)TimeSpan.FromHours(1).TotalSeconds
             };
         }
-
+        public Task<TokenResponseDto> IssueTokenAsync(User user, CancellationToken ct)
+        {
+            var jwt = GenerateJwt(user);
+            return Task.FromResult(new TokenResponseDto
+            {
+                AccessToken = jwt,
+                TokenType = "Bearer",
+                ExpiresIn = (int)TimeSpan.FromHours(1).TotalSeconds
+            });
+        }
         private string GenerateJwt(User user)
         {
             var section = _config.GetSection("Jwt");
