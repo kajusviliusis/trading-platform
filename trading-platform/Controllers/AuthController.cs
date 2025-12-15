@@ -5,6 +5,9 @@ using trading_platform.Data;
 using trading_platform.Dtos;
 using trading_platform.Models.Entities;
 using trading_platform.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Security.Claims;
 
 namespace trading_platform.Controllers
 {
@@ -70,6 +73,89 @@ namespace trading_platform.Controllers
             await _db.SaveChangesAsync(ct);
 
             return CreatedAtAction(nameof(Login), new { username = dto.Username }, new { message = "User registered." });
+        }
+
+        [AllowAnonymous]
+        [HttpGet("external/{provider}")]
+        public IActionResult ExternalLogin([FromRoute] string provider, [FromQuery] string? returnUrl = "http://localhost:3000/oauth-callback")
+        {
+            var redirectUri = Url.Action(nameof(ExternalCallback), "Auth", new { returnUrl }, Request.Scheme)!;
+            var props = new AuthenticationProperties
+            {
+                RedirectUri = redirectUri
+            };
+            return Challenge(props, provider);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("external-callback")]
+        public async Task<IActionResult> ExternalCallback([FromQuery] string? returnUrl = "http://localhost:3000/oauth-callback")
+        {
+            var authResult = await HttpContext.AuthenticateAsync("External");
+            if (!authResult.Succeeded || authResult.Principal == null)
+                return Unauthorized(new { title = "External authentication failed." });
+
+            var principal = authResult.Principal;
+            var email = principal.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
+            var displayName = principal.Identity?.Name ?? email;
+
+            var ct = HttpContext.RequestAborted;
+
+            User? user = null;
+            if (!string.IsNullOrEmpty(email))
+            {
+                user = await _db.Users.SingleOrDefaultAsync(u => u.Email == email, ct);
+            }
+
+            if (user == null)
+            {
+                var username = string.IsNullOrWhiteSpace(displayName) ? $"user_{Guid.NewGuid():N}".Substring(0, 12) : displayName;
+
+                var baseName = username;
+                var suffix = 0;
+                while (await _db.Users.AnyAsync(u => u.Username == username, ct))
+                {
+                    suffix++;
+                    username = $"{baseName}_{suffix}";
+                }
+
+                user = new User
+                {
+                    Username = username,
+                    Email = email,
+                    PasswordHash = string.Empty,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _db.Users.Add(user);
+                await _db.SaveChangesAsync(ct);
+
+                _db.Wallets.Add(new Wallet
+                {
+                    UserId = user.Id,
+                    Balance = 0m,
+                    Currency = "USD"
+                });
+                await _db.SaveChangesAsync(ct);
+            }
+
+            var token = await _authService.IssueTokenAsync(user, ct);
+
+            // clear cookie
+            await HttpContext.SignOutAsync("External");
+
+            if (!string.IsNullOrWhiteSpace(returnUrl))
+            {
+                var redirect = QueryHelpers.AddQueryString(returnUrl, new Dictionary<string, string?>
+                {
+                    ["access_token"] = token.AccessToken,
+                    ["token_type"] = token.TokenType,
+                    ["expires_in"] = token.ExpiresIn.ToString()
+                });
+                return Redirect(redirect);
+            }
+
+            return Ok(token);
         }
     }
 }
