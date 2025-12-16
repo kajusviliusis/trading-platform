@@ -84,6 +84,10 @@ namespace trading_platform.Controllers
             {
                 RedirectUri = redirectUri
             };
+
+            // forcinam google kad duotu pasirinkti acc
+            props.Items["prompt"] = "select_account";
+
             return Challenge(props, provider);
         }
 

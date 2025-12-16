@@ -7,11 +7,10 @@ const OAuthCallback: React.FC = () => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("access_token");
-    const expiresIn = params.get("expires_in");
-
+    console.log("Callback token:", token);
     if (token) {
       localStorage.setItem("accessToken", token);
-      navigate("/dashboard", { replace: true });
+      setTimeout(() => navigate("/dashboard", { replace: true }), 200);
     } else {
       navigate("/login", { replace: true });
     }
