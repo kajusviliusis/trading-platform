@@ -3,6 +3,8 @@ import { useLocation, useNavigate, Link } from "react-router-dom";
 import { login } from "../api";
 import "./LoginPage.css";
 
+const API_BASE_URL = "https://localhost:7212";
+
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation() as any;
@@ -25,6 +27,12 @@ const LoginPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const startGoogleLogin = () => {
+    const returnUrl = `${window.location.origin}/oauth-callback`;
+    const url = `${API_BASE_URL}/api/auth/external/Google?returnUrl=${encodeURIComponent(returnUrl)}`;
+    window.location.href = url;
   };
 
   return (
@@ -53,6 +61,13 @@ const LoginPage: React.FC = () => {
         <button type="submit" disabled={loading}>
           {loading ? "Signing in..." : "Login"}
         </button>
+
+        <div style={{ marginTop: 10 }}>
+          <button type="button" onClick={startGoogleLogin}>
+            Continue with Google
+          </button>
+        </div>
+
         <div style={{ marginTop: 8, textAlign: "center" }}>
           <Link to="/register">Don&apos;t have an account? Register here</Link>
         </div>

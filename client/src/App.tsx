@@ -4,12 +4,14 @@ import Dashboard from "./pages/Dashboard";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import RequireAuth from "./components/RequireAuth";
+import OAuthCallback from "./pages/OAuthCallback";
 
 const App: React.FC = () => (
   <BrowserRouter>
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/oauth-callback" element={<OAuthCallback />} />
       <Route
         path="/"
         element={

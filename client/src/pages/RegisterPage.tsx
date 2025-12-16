@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { login, register } from "../api";
 import "./LoginPage.css";
 
+const API_BASE_URL = "https://localhost:7212";
+
 const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -30,6 +32,12 @@ const RegisterPage: React.FC = () => {
     }
   }
 
+  const startGoogleLogin = () => {
+    const returnUrl = `${window.location.origin}/oauth-callback`;
+    const url = `${API_BASE_URL}/api/auth/external/Google?returnUrl=${encodeURIComponent(returnUrl)}`;
+    window.location.href = url;
+  };
+
   return (
     <div className="login-container">
       <form className="login-form" onSubmit={onSubmit}>
@@ -57,6 +65,13 @@ const RegisterPage: React.FC = () => {
         <button type="submit" className="logout-button" disabled={submitting}>
           {submitting ? "Registering..." : "Register"}
         </button>
+
+        <div style={{ marginTop: 10 }}>
+          <button type="button" onClick={startGoogleLogin}>
+            Continue with Google
+          </button>
+        </div>
+
         <div style={{ marginTop: 8, textAlign: "center" }}>
           <a href="/login">Already have an account? Sign in</a>
         </div>
