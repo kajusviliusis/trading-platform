@@ -106,7 +106,7 @@ namespace trading_platform.Controllers
             {
                 user = await _db.Users.SingleOrDefaultAsync(u => u.Email == email, ct);
             }
-
+            // set up user and wallet
             if (user == null)
             {
                 var username = string.IsNullOrWhiteSpace(displayName) ? $"user_{Guid.NewGuid():N}".Substring(0, 12) : displayName;
