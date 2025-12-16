@@ -65,6 +65,10 @@ function getUserIdFromToken(): number | null {
   return Number.isFinite(id) ? id : null;
 }
 
+export function getCurrentUserId(): number | null {
+  return getUserIdFromToken();
+}
+
 // API functions
 
 export async function getOrders(): Promise<Order[]> {
@@ -164,4 +168,9 @@ export async function login(username: string, password: string): Promise<void> {
 
 export async function register(username: string, password: string): Promise<void> {
   await axios.post(`${API_BASE_URL}/api/auth/register`, { username, password });
+}
+
+export async function getUserById(id: number): Promise<{ id: number; username: string; email: string; createdAt: string }> {
+  const res = await http.get(`/User/${id}`);
+  return res.data;
 }
