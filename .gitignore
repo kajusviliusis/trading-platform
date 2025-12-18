@@ -15,4 +15,5 @@ packages/
 *.log
 
 trading-platform/appsettings.json
+.env
 

@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: trading-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - trading-pgdata:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: ./trading-platform
+      dockerfile: Dockerfile
+    container_name: tp-dev
+    depends_on:
+      - postgres
+    ports:
+      - "${API_PORT}:5001"
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+
+volumes:
+  trading-pgdata:

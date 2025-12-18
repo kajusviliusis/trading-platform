@@ -10,7 +10,7 @@ const OAuthCallback: React.FC = () => {
     console.log("Callback token:", token);
     if (token) {
       localStorage.setItem("accessToken", token);
-      setTimeout(() => navigate("/dashboard", { replace: true }), 200);
+      setTimeout(() => navigate("/dashboard", { replace: true }), 200); //delay
     } else {
       navigate("/login", { replace: true });
     }
