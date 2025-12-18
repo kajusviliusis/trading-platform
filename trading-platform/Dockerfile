@@ -15,4 +15,5 @@ WORKDIR /app
 ENV ASPNETCORE_URLS=http://+:5001
 EXPOSE 5001
 COPY --from=build /app/publish .
+COPY Data/sp500.csv ./Data/sp500.csv
 ENTRYPOINT ["dotnet", "trading-platform.dll"]

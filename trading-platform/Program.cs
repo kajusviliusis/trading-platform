@@ -113,6 +113,10 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<TradingDbContext>();
     db.Database.Migrate();
+    var env = scope.ServiceProvider.GetRequiredService<IHostEnvironment>();
+    var csvPath = Path.Combine(env.ContentRootPath, "Data/sp500.csv");
+
+    await StockCsvSeeder.SeedFromCsvAsync(db, csvPath);
 }
 
 app.UseCors("AllowFrontend");
