@@ -1,6 +1,6 @@
 # 6nuliai
-a stock trading platform (only has the s&p500 stocks)
-made it to understand how .net, rest apis work
+- a stock trading platform (only has the s&p500 stocks) with live prices (from finnhub api), users are able to buy/sell, search stocks, see holdings, wallet, profile
+- made it to understand how .net, rest apis work
 
 ## tools
 - backend: ASP.NET Core Web API (.NET 8), C#
@@ -12,8 +12,4 @@ made it to understand how .net, rest apis work
 
 ## screenshots (minimal frontend)
 <img width="1297" height="916" alt="image" src="https://github.com/user-attachments/assets/5330759c-846c-41b6-9009-4c5f23896e75" />
-
-<img width="1763" height="984" alt="image" src="https://github.com/user-attachments/assets/2d979513-fa9c-485b-ba70-aa9a6c0a630a" />
-
-## api endpoints
-<img width="938" height="1028" alt="image" src="https://github.com/user-attachments/assets/7039cdee-35c6-40c7-a08a-886c1e162ab4" />
+<img width="1543" height="1004" alt="image" src="https://github.com/user-attachments/assets/b16c184d-ae9c-4f3e-8442-760085c2b41a" />
