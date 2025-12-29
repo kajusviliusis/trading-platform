@@ -1,6 +1,5 @@
 # 6nuliai
 - a stock trading platform (only has the s&p500 stocks) with live prices (from finnhub api), users are able to buy/sell, search stocks, see holdings, wallet, profile
-- made it to understand how .net, rest apis work
 
 ## tools
 - backend: ASP.NET Core Web API (.NET 8), C#
@@ -9,6 +8,7 @@
 - frontend: React, TypeScript
 - database: Postgres
 - containerization: Docker
+- caching: Redis
 
 ## screenshots (minimal frontend)
 <img width="1297" height="916" alt="image" src="https://github.com/user-attachments/assets/5330759c-846c-41b6-9009-4c5f23896e75" />
