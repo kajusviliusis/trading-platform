@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Order, Holding, Transaction, Wallet, Stock, StockQuote } from "../types";
 
-const API_BASE_URL = "https://localhost:7212";
+const API_BASE_URL = "http://localhost:5001";
 const API_URL = `${API_BASE_URL}/api`;
 
 const http = axios.create({ baseURL: API_URL });
