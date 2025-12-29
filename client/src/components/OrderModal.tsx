@@ -131,14 +131,8 @@ const OrderModal: React.FC<Props> = ({ stockId, symbol, type, onClose, onSuccess
 
     const qtyFromCash =
       type === "SELL" ? derivedQuantityExact : derivedQuantityFloor;
-
-    const qtyManualParsed = parseQuantity();
-    const qtyManual =
-      qtyManualParsed == null
-        ? null
-        : type === "SELL"
-        ? qtyManualParsed
-        : Math.floor(qtyManualParsed);
+      const qtyManualParsed = parseQuantity();
+      const qtyManual = qtyManualParsed == null ? null : qtyManualParsed;
 
     const qty = qtyFromCash ?? qtyManual;
 
