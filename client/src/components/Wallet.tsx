@@ -49,20 +49,43 @@ const WalletComponent: React.FC = () => {
     }
   };
 
+  const formatCurrency = (v: number) => `$${v.toFixed(2)}`;
+
   return (
     <div className="wallet">
       <h2>Wallet</h2>
       {wallet ? (
         <>
           <ul>
-            <li>Cash Balance: ${wallet.balance.toFixed(2)} {wallet.currency}</li>
-            <li>Portfolio Value: ${wallet.portfolioValue.toFixed(2)}</li>
-            <li><strong>Total Balance: ${wallet.totalBalance.toFixed(2)}</strong></li>
+            <li>Cash Balance: {formatCurrency(wallet.balance)} {wallet.currency}</li>
+            <li>Portfolio Value: {formatCurrency(wallet.portfolioValue)}</li>
+            <li><strong>Total Balance: {formatCurrency(wallet.totalBalance)}</strong></li>
             <li>Last Updated: {new Date(wallet.updatedAt).toLocaleTimeString()}</li>
           </ul>
+          <div
+            style={{
+              display: "flex",
+              gap: 12,
+              alignItems: "center",
+              marginTop: 8,
+              fontWeight: 600
+            }}
+            aria-label="Profit/Loss summary"
+          >
+            <span>Profit/Loss:</span>
+            <span
+              style={{
+                color:
+                  wallet.unrealizedPnl > 0 ? "#2e7d32" : wallet.unrealizedPnl < 0 ? "#c62828" : "#ccc"
+              }}
+            >
+              {formatCurrency(wallet.unrealizedPnl)} ({wallet.unrealizedPnlPercent.toFixed(2)}%)
+            </span>
+          </div>
+
           <form
             onSubmit={onDeposit}
-            style={{ display: "flex", gap: 8, alignItems: "flex-end", marginTop: 8 }}
+            style={{ display: "flex", gap: 8, alignItems: "flex-end", marginTop: 12 }}
           >
             <label style={{ display: "flex", flexDirection: "column", flex: "0 1 200px" }}>
               Deposit amount

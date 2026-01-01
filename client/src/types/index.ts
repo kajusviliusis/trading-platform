@@ -33,6 +33,8 @@ export interface Wallet {
 	portfolioValue: number;
 	totalBalance: number;
 	updatedAt: string;
+	unrealizedPnl: number;
+	unrealizedPnlPercent: number;
 }
 export interface Stock {
 	id: number;
