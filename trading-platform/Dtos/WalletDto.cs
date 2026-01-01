@@ -21,5 +21,8 @@
         public decimal PortfolioValue { get; set; }
         public decimal TotalBalance { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        public decimal UnrealizedPnl { get; set; }
+        public decimal UnrealizedPnlPercent { get; set; }
     }
 }

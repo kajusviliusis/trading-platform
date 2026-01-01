@@ -100,6 +100,7 @@ namespace trading_platform.Controllers
             var holdings = _context.Holdings.Where(h => h.UserId == userId).ToList();
             var stocks = _context.Stocks.ToList();
 
+            // Compute current portfolio value
             decimal portfolioValue = 0;
             foreach (var h in holdings)
             {
@@ -107,13 +108,67 @@ namespace trading_platform.Controllers
                 if (stock != null) portfolioValue += h.Quantity * stock.Price;
             }
 
+            // Compute unrealized PnL using weighted-average cost based on executed orders
+            var orders = _context.Orders
+                .Where(o => o.UserId == userId)
+                .OrderBy(o => o.Timestamp)
+                .ToList();
+
+            decimal totalCostBasis = 0;
+            decimal totalQuantity = 0;
+            decimal totalUnrealizedPnl = 0;
+
+            foreach (var holding in holdings)
+            {
+                var stock = stocks.FirstOrDefault(s => s.Id == holding.StockId);
+                if (stock == null) continue;
+
+                var stockOrders = orders.Where(o => o.StockId == holding.StockId).ToList();
+
+                decimal positionQty = 0;
+                decimal avgCost = 0;
+
+                foreach (var o in stockOrders)
+                {
+                    if (string.Equals(o.Type, "Buy", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var newQty = positionQty + o.Quantity;
+                        if (newQty > 0)
+                        {
+                            avgCost = ((positionQty * avgCost) + (o.Quantity * o.PriceAtExecution)) / newQty;
+                        }
+                        positionQty = newQty;
+                    }
+                    else
+                    {
+                        positionQty -= o.Quantity;
+                        if (positionQty < 0) positionQty = 0;
+                    }
+                }
+                var effectiveQty = holding.Quantity;
+                if (positionQty > 0)
+                {
+                    effectiveQty = holding.Quantity;
+                }
+
+                var costBasis = effectiveQty * avgCost;
+                var unrealizedPnl = effectiveQty * (stock.Price - avgCost);
+
+                totalCostBasis += costBasis;
+                totalQuantity += effectiveQty;
+                totalUnrealizedPnl += unrealizedPnl;
+            }
+
             var totalBalance = (wallet?.Balance ?? 0) + portfolioValue;
+
             var dto = new WalletResponseDto
             {
                 Balance = wallet?.Balance ?? 0,
                 PortfolioValue = portfolioValue,
-                TotalBalance = (wallet?.Balance ?? 0) + portfolioValue,
-                UpdatedAt = DateTime.UtcNow
+                TotalBalance = totalBalance,
+                UpdatedAt = DateTime.UtcNow,
+                UnrealizedPnl = totalUnrealizedPnl,
+                UnrealizedPnlPercent = totalCostBasis > 0 ? (totalUnrealizedPnl / totalCostBasis) * 100m : 0m
             };
             return Ok(dto);
         }
