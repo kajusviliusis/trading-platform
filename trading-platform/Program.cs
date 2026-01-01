@@ -9,6 +9,7 @@ using trading_platform.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,7 +52,7 @@ builder.Services.AddDbContext<TradingDbContext>(options =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
-        policy => policy.WithOrigins("http://localhost:3000")
+        policy => policy.WithOrigins("http://localhost:3001")
             .AllowAnyHeader()
             .AllowAnyMethod());
 });
@@ -130,6 +131,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.MapMetrics("/metrics").AllowAnonymous(); //prometheus /metrics
+app.UseHttpMetrics();
 
 //app.UseHttpsRedirection();
 app.UseAuthentication();
