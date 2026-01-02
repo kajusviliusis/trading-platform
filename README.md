@@ -11,6 +11,22 @@
 - Caching: Redis
 - Monitoring: Prometheus, Grafana
 
+## Getting started
+### Prerequisites
+- Docker and Docker Compose
+- .NET 8
+- Node.js and npm
+### Running the application
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/kajusviliusis/trading-platform.git
+   cd trading-platform
+3. Create a .env file with these variables: POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, API_PORT
+5. Start services:
+
+    ```bash
+   docker compose up -d --build
+
 ## Screenshots
 <img width="1297" height="916" alt="image" src="https://github.com/user-attachments/assets/5330759c-846c-41b6-9009-4c5f23896e75" />
 <img width="1192" height="1018" alt="Screenshot 2026-01-01 213310" src="https://github.com/user-attachments/assets/177fc06a-352e-4a3e-a91b-8af58686d4b9" />
